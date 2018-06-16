@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">InventoryApp</string>
+    <string name="menu_insert_dummy_data">Insert Dummy Data</string>
+    <string name="menu_show_number_of_items">Show Number of Items</string>
+    <string name="menu_delete_all_items">Delete All Items</string>
+    <string name="menu_show_last_item">Show Last Item</string>
+    <string name="inserting_message">Inserting dummy data</string>
+    <string name="deleting_message">Deleting table</string>
+    <string name="number_of_items_beginning">Table has\ </string>
+    <string name="number_of_items_ending">\ items</string>
+    <string name="rows_in_table">Number of rows in Inventory table:</string>
+</resources>
