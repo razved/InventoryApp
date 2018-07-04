@@ -13,6 +13,8 @@
         android:id="@+id/action_show_number_of_items"
         android:title="@string/menu_show_number_of_items"
         app:showAsAction="never"/>
-
-
+    <item
+        android:id="@+id/action_delete_all_items"
+        android:title="@string/menu_delete_all_items"
+        app:showAsAction="never"/>
 </menu>

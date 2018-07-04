@@ -54,7 +54,7 @@ public class InventoryProvider extends ContentProvider {
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
         // Get readable database
         SQLiteDatabase database = dbHelper.getReadableDatabase();
-        // This cursor wiil hold the result of the query
+        // This cursor will hold the result of the query
         Cursor cursor;
 
         //Figure out if the URI mathcer can match the URI to a specific code
@@ -116,7 +116,7 @@ public class InventoryProvider extends ContentProvider {
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues contentValues) {
         final int match = sUriMatcher.match(uri);
         switch (match) {
-            case INVENTORY_ID:
+            case INVENTORYES:
                 return insertItem(uri, contentValues);
             default:
                 throw new IllegalArgumentException("Insertion is not supported for " + uri);

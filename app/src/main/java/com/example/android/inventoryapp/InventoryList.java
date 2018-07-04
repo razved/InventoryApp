@@ -1,13 +1,20 @@
 package com.example.android.inventoryapp;
 
+import android.app.AlertDialog;
 import android.app.LoaderManager;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,9 +33,6 @@ import butterknife.ButterKnife;
 
 public class InventoryList extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
-
-    InventoryDbHelper dbHelper;
-
     final static private int MAX_DUMMY_PRICE = 300;
     final static private int MAX_DUMMY_QUANTITY = 300;
     final static private String SORT_ORDER_ASC = " ASC";
@@ -36,11 +40,14 @@ public class InventoryList extends AppCompatActivity implements LoaderManager.Lo
     final static private String NEW_LINE = "\n";
     //Cursor Loader ID
     private static final int INVENTORY_LOADER = 0;
+    //constant for log files
+    private static final String LOG_TAG = "InventoryList.java";
     //Adapter for creating Items list of Inventory
     InventoryCursorAdapter inventoryAdapter;
     //Bind views to variables
 
     @BindView(R.id.inventory_list_view) ListView inventoryListView;
+    @BindView(R.id.fab) FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +55,15 @@ public class InventoryList extends AppCompatActivity implements LoaderManager.Lo
         setContentView(R.layout.activity_inventory_list);
         ButterKnife.bind(this);
 
-        dbHelper = new InventoryDbHelper(this);
-//        displayData(queryData());
+        //Setup FAB to open EditorActivity
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(InventoryList.this, EditorActivity.class);
+                startActivity(intent);
+            }
+        });
+
 
         // TODO: 04.07.2018 Забиндить Заглушку для пустого вью
 
@@ -61,10 +75,14 @@ public class InventoryList extends AppCompatActivity implements LoaderManager.Lo
         inventoryListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                // TODO: 04.07.2018 Установить ОтИтемКликЛистенер на листвью
-                showToast("You clicked on position: " + position + " id: " + id);
+                //Create intent of EditorActivity and pass Uri as data
+                Intent intent = new Intent(InventoryList.this, EditorActivity.class);
+                Log.i(LOG_TAG, "Uri: " + ContentUris.withAppendedId(InventoryEntry.CONTENT_URI, id));
+                intent.setData(ContentUris.withAppendedId(InventoryEntry.CONTENT_URI, id));
+                startActivity(intent);
             }
         });
+
 
         //Kick off the loader
         getLoaderManager().initLoader(INVENTORY_LOADER, null, this);
@@ -92,6 +110,9 @@ public class InventoryList extends AppCompatActivity implements LoaderManager.Lo
                 showToast(getString(R.string.number_of_items_beginning) + itemsCount +
                         getString(R.string.number_of_items_ending));
                 return true;
+            case R.id.action_delete_all_items:
+                showDeleteConfirmationDialog();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -109,18 +130,44 @@ public class InventoryList extends AppCompatActivity implements LoaderManager.Lo
                             int quantity,
                             String supplierName,
                             String supplierPhone) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
         ContentValues values = new ContentValues();
+
         values.put(InventoryEntry.COLUMN_INVENTORY_NAME, name);
         values.put(InventoryEntry.COLUMN_INVENTORY_PRICE, price);
         values.put(InventoryEntry.COLUMN_INVENTORY_QUANTITY, quantity);
         values.put(InventoryEntry.COLUMN_INVENTORY_SUPPLIER_NAME, supplierName);
         values.put(InventoryEntry.COLUMN_INVENTORY_SUPPLIER_PHONE, supplierPhone);
-        long newRowId = db.insert(InventoryEntry.TABLE_NAME, null, values);
-        if (newRowId == -1) {
-            showToast("Adding new Item was wrong");
-        }
-    }
+
+        Uri uri = getContentResolver().insert(InventoryEntry.CONTENT_URI, values);
+
+     }
+
+     private void showDeleteConfirmationDialog() {
+         //Create an AlertDialog.Builder and set the message, and click listeners
+         //for the positive and negative buttons on the dialog
+         AlertDialog.Builder builder = new AlertDialog.Builder(this);
+         builder.setMessage(R.string.delete_all_dialog_msg);
+         builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+             @Override
+             public void onClick(DialogInterface dialogInterface, int i) {
+                 //User clicked the "Delete" button
+                 deleteItems();
+             }
+         });
+         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+             @Override
+             public void onClick(DialogInterface dialogInterface, int i) {
+                 //User clicked the "Cancel" button, so dissmiss the dialog
+                 if (dialogInterface != null) {
+                     dialogInterface.dismiss();
+                 }
+             }
+         });
+         //Create and show the AlertDialog
+         AlertDialog alertDialog = builder.create();
+         alertDialog.show();
+     }
 
     /**
      * This method add to database dummy-data item generated randomly
@@ -148,8 +195,6 @@ public class InventoryList extends AppCompatActivity implements LoaderManager.Lo
      */
     // TODO: 04.07.2018 Переделать на ContentValues
     private Cursor queryData() {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-
         // Define a projection that specifies which columns from the database
         // you will actually use after this query.
         String[] projections = {
@@ -160,17 +205,14 @@ public class InventoryList extends AppCompatActivity implements LoaderManager.Lo
                 InventoryEntry.COLUMN_INVENTORY_SUPPLIER_NAME,
                 InventoryEntry.COLUMN_INVENTORY_SUPPLIER_PHONE
         };
-        // How you want the results sorted in the resulting Cursor
-        String sortOrder = InventoryEntry._ID + SORT_ORDER_ASC;
+
         // Perform this raw SQL query "SELECT * FROM inventory"
         // to get a Cursor that contains all rows from the pets table.
-        Cursor cursor = db.query(InventoryEntry.TABLE_NAME,
+        Cursor cursor = getContentResolver().query(InventoryEntry.CONTENT_URI,
                 projections,
                 null,
                 null,
-                null,
-                null,
-                sortOrder);
+                null);
         return cursor;
     }
 
@@ -183,6 +225,15 @@ public class InventoryList extends AppCompatActivity implements LoaderManager.Lo
         int counts = cursor.getCount();
         cursor.close();
         return counts;
+    }
+
+    private void deleteItems() {
+        int rowsDeleted = getContentResolver().delete(InventoryEntry.CONTENT_URI, null, null);
+        if (rowsDeleted != 0) {
+            showToast(rowsDeleted + getString(R.string.items_was_deleted));
+        } else {
+            showToast(getString(R.string.error_deleting));
+        }
     }
 
 

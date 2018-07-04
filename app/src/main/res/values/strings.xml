@@ -10,4 +10,36 @@
     <string name="number_of_items_ending">\ items</string>
     <string name="rows_in_table">Number of rows in Inventory table:</string>
     <string name="error_add_new">Error in saving new item</string>
+    <string name="items_was_deleted">\ items was deleted</string>
+    <string name="error_deleting">Error in deleting</string>
+
+    <!--DELETE DIALOG CONFIRMATION-->
+    <string name="delete_all_dialog_msg">Delete ALL items?</string>
+    <string name="delete_one_dialog_msg">Do you want delete Item?</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="name_of_item">Name of item</string>
+    <string name="price">Price</string>
+    <string name="quantity">Quantity:</string>
+    <string name="supplier_name">Supplier name:</string>
+    <string name="supplier_phone">Supplier Phone:</string>
+
+    <!--Hint for EditText-->
+    <string name="hint_name">Spoon</string>
+    <string name="hint_price">100</string>
+    <string name="hint_quantity">1</string>
+    <string name="hint_supplier_name">Microsoft</string>
+
+    <!--EditorActivity Menu-->
+    <string name="menu_save">Save</string>
+    <string name="menu_delete">Delete</string>
+
+    <!--EditorActivity Header-->
+    <string name="editor_activity_edit">Edit Item</string>
+    <string name="editor_activity_add">Add New Item</string>
+    <string name="error_saving">Error in saving an Item</string>
+    <string name="item_saved">Item saved!</string>
+    <string name="editing_failed">Item editing failed</string>
+    <string name="items_was_updated">\ Items was updated</string>
+
 </resources>

@@ -61,9 +61,9 @@ public class InventoryCursorAdapter extends CursorAdapter {
      * Helper class managed views
      */
     static class ViewHolder {
-        @BindView(R.id.inventory_name) TextView inventoryName;
-        @BindView(R.id.price) TextView inventoryPrice;
-        @BindView(R.id.quantity) TextView inventoryQuantity;
+        @BindView(R.id.inventory_name_text_view_list) TextView inventoryName;
+        @BindView(R.id.price_text_view_list) TextView inventoryPrice;
+        @BindView(R.id.quantity_text_view_list) TextView inventoryQuantity;
 
         public ViewHolder(View view) {
             ButterKnife.bind(this, view);
