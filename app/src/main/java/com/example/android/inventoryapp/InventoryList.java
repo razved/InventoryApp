@@ -1,12 +1,18 @@
 package com.example.android.inventoryapp;
 
+import android.app.LoaderManager;
 import android.content.ContentValues;
+import android.content.CursorLoader;
+import android.content.Loader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,7 +24,8 @@ import java.util.Random;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class InventoryList extends AppCompatActivity {
+public class InventoryList extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+
 
     InventoryDbHelper dbHelper;
 
@@ -27,8 +34,13 @@ public class InventoryList extends AppCompatActivity {
     final static private String SORT_ORDER_ASC = " ASC";
     final static private String SORT_ORDER_DESC = " DESC";
     final static private String NEW_LINE = "\n";
+    //Cursor Loader ID
+    private static final int INVENTORY_LOADER = 0;
+    //Adapter for creating Items list of Inventory
+    InventoryCursorAdapter inventoryAdapter;
+    //Bind views to variables
 
-    @BindView(R.id.text_view) TextView textView;
+    @BindView(R.id.inventory_list_view) ListView inventoryListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +49,25 @@ public class InventoryList extends AppCompatActivity {
         ButterKnife.bind(this);
 
         dbHelper = new InventoryDbHelper(this);
-        displayData(queryData());
+//        displayData(queryData());
+
+        // TODO: 04.07.2018 Забиндить Заглушку для пустого вью
+
+        //Setup an Adapter to create a list item for each row of inventory data
+        //in the Cursor. There are no data until the loader finishes so pass in null for the Cursor.
+        inventoryAdapter = new InventoryCursorAdapter(this, null);
+        inventoryListView.setAdapter(inventoryAdapter);
+
+        inventoryListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                // TODO: 04.07.2018 Установить ОтИтемКликЛистенер на листвью
+                showToast("You clicked on position: " + position + " id: " + id);
+            }
+        });
+
+        //Kick off the loader
+        getLoaderManager().initLoader(INVENTORY_LOADER, null, this);
     }
 
     @Override
@@ -55,7 +85,7 @@ public class InventoryList extends AppCompatActivity {
             case R.id.action_insert_dummy_data:
                 showToast(getString(R.string.inserting_message));
                 insertDummyData();
-                displayData(queryData());
+
                 return true;
             case R.id.action_show_number_of_items:
                 int itemsCount = numberOfItems(queryData());
@@ -74,6 +104,7 @@ public class InventoryList extends AppCompatActivity {
      * @param supplierName name of supplier
      * @param supplierPhone phone number of supplier
      */
+    // TODO: 04.07.2018 Переделать на ContentValues
     private void insertData(String name, int price,
                             int quantity,
                             String supplierName,
@@ -83,8 +114,8 @@ public class InventoryList extends AppCompatActivity {
         values.put(InventoryEntry.COLUMN_INVENTORY_NAME, name);
         values.put(InventoryEntry.COLUMN_INVENTORY_PRICE, price);
         values.put(InventoryEntry.COLUMN_INVENTORY_QUANTITY, quantity);
-        values.put(InventoryEntry.COLUMNT_INVENTORY_SUPPLIER_NAME, supplierName);
-        values.put(InventoryEntry.COLUMNT_INVENTORY_SUPPLIER_PHONE, supplierPhone);
+        values.put(InventoryEntry.COLUMN_INVENTORY_SUPPLIER_NAME, supplierName);
+        values.put(InventoryEntry.COLUMN_INVENTORY_SUPPLIER_PHONE, supplierPhone);
         long newRowId = db.insert(InventoryEntry.TABLE_NAME, null, values);
         if (newRowId == -1) {
             showToast("Adding new Item was wrong");
@@ -115,6 +146,7 @@ public class InventoryList extends AppCompatActivity {
      * This method retrieve all data from InventoryEntry.TABLE_NAME
      * @return all data from InventoryEntry.TABLE_NAME as Cursor
      */
+    // TODO: 04.07.2018 Переделать на ContentValues
     private Cursor queryData() {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
@@ -125,8 +157,8 @@ public class InventoryList extends AppCompatActivity {
                 InventoryEntry.COLUMN_INVENTORY_NAME,
                 InventoryEntry.COLUMN_INVENTORY_PRICE,
                 InventoryEntry.COLUMN_INVENTORY_QUANTITY,
-                InventoryEntry.COLUMNT_INVENTORY_SUPPLIER_NAME,
-                InventoryEntry.COLUMNT_INVENTORY_SUPPLIER_PHONE
+                InventoryEntry.COLUMN_INVENTORY_SUPPLIER_NAME,
+                InventoryEntry.COLUMN_INVENTORY_SUPPLIER_PHONE
         };
         // How you want the results sorted in the resulting Cursor
         String sortOrder = InventoryEntry._ID + SORT_ORDER_ASC;
@@ -153,50 +185,34 @@ public class InventoryList extends AppCompatActivity {
         return counts;
     }
 
+
+
     /**
-     * Display data from table to TextView
-     * @param cursor cursor recieved data from table
+     * Helper method to show Toast message (for LENGTH_SHORT time)
+     * @param message text to show
      */
-    private void displayData(Cursor cursor) {
-        try {
-            textView.setText(getString(R.string.rows_in_table) + cursor.getCount() + NEW_LINE);
-            textView.append(InventoryEntry._ID + " - " +
-            InventoryEntry.COLUMN_INVENTORY_NAME + " - " +
-            InventoryEntry.COLUMN_INVENTORY_PRICE + " - " +
-            InventoryEntry.COLUMN_INVENTORY_QUANTITY + " - " +
-            InventoryEntry.COLUMNT_INVENTORY_SUPPLIER_NAME + " - " +
-            InventoryEntry.COLUMNT_INVENTORY_SUPPLIER_PHONE);
-
-            //indexes of table columns
-            int idColumnIndex = cursor.getColumnIndex(InventoryEntry._ID);
-            int nameColumnIndex = cursor.getColumnIndex(InventoryEntry.COLUMN_INVENTORY_NAME);
-            int priceColumnIndex = cursor.getColumnIndex(InventoryEntry.COLUMN_INVENTORY_PRICE);
-            int quantityColumnIndex = cursor.getColumnIndex(InventoryEntry.COLUMN_INVENTORY_QUANTITY);
-            int supplierNameColumnIndex =  cursor.getColumnIndex(InventoryEntry.COLUMNT_INVENTORY_SUPPLIER_NAME);
-            int supplierPhoneColumnIndex = cursor.getColumnIndex(InventoryEntry.COLUMNT_INVENTORY_SUPPLIER_PHONE);
-
-            // Add items from table line by line to TextView
-            while (cursor.moveToNext()) {
-                int currentId = cursor.getInt(idColumnIndex);
-                String currentName = cursor.getString(nameColumnIndex);
-                int currentPrice = cursor.getInt(priceColumnIndex);
-                int currentQuantity = cursor.getInt(quantityColumnIndex);
-                String currentSupplierName = cursor.getString(supplierNameColumnIndex);
-                String currentSupplierPhone = cursor.getString(supplierPhoneColumnIndex);
-
-                textView.append(NEW_LINE + currentId + " - " +
-                    currentName + " - " +
-                    currentPrice + " - " +
-                    currentQuantity + " - " +
-                    currentSupplierName + " - " +
-                    currentSupplierPhone);
-            }
-        } finally {
-            cursor.close();
-        }
-    }
-
     private void showToast(String message) {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        String[] projection = {
+                InventoryEntry._ID,
+                InventoryEntry.COLUMN_INVENTORY_NAME,
+                InventoryEntry.COLUMN_INVENTORY_PRICE,
+                InventoryEntry.COLUMN_INVENTORY_QUANTITY,
+        };
+        return new CursorLoader(this, InventoryEntry.CONTENT_URI, projection, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        inventoryAdapter.swapCursor(cursor);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        inventoryAdapter.swapCursor(null);
     }
 }

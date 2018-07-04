@@ -9,4 +9,5 @@
     <string name="number_of_items_beginning">Table has\ </string>
     <string name="number_of_items_ending">\ items</string>
     <string name="rows_in_table">Number of rows in Inventory table:</string>
+    <string name="error_add_new">Error in saving new item</string>
 </resources>

@@ -16,8 +16,8 @@ public class InventoryDbHelper extends SQLiteOpenHelper {
             InventoryEntry.COLUMN_INVENTORY_NAME + " TEXT NOT NULL, " +
             InventoryEntry.COLUMN_INVENTORY_PRICE + " INTEGER NOT NULL, " +
             InventoryEntry.COLUMN_INVENTORY_QUANTITY + " INTEGER NOT NULL DEFAULT 0, " +
-            InventoryEntry.COLUMNT_INVENTORY_SUPPLIER_NAME + " TEXT NOT NULL, " +
-            InventoryEntry.COLUMNT_INVENTORY_SUPPLIER_PHONE + " TEXT NOT NULL" +
+            InventoryEntry.COLUMN_INVENTORY_SUPPLIER_NAME + " TEXT NOT NULL, " +
+            InventoryEntry.COLUMN_INVENTORY_SUPPLIER_PHONE + " TEXT NOT NULL" +
             ");";
     private static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " +
             InventoryEntry.TABLE_NAME;
