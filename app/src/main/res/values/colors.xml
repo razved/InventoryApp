@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#3F51B5</color>
-    <color name="inv_name_color">#2B3D4D</color>
-    <color name="price_color">#AEB6BD</color>
+    <color name="colorPrimary">#0097A7</color>
+    <color name="colorPrimaryDark">#01579B</color>
+    <color name="colorAccent">#E65100</color>
+    <color name="inv_name_color">#01579B</color>
+    <color name="price_color">#00695C</color>
+    <color name="plus">#E64A19</color>
+    <color name="plus_minus_button">#FFFFFF</color>
 </resources>

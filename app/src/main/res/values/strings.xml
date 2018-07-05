@@ -4,6 +4,8 @@
     <string name="menu_show_number_of_items">Show Number of Items</string>
     <string name="menu_delete_all_items">Delete All Items</string>
     <string name="menu_show_last_item">Show Last Item</string>
+    <string name="menu_copyright">Copyright</string>
+
     <string name="inserting_message">Inserting dummy data</string>
     <string name="deleting_message">Deleting table</string>
     <string name="number_of_items_beginning">Table has\ </string>
@@ -18,8 +20,9 @@
     <string name="delete_one_dialog_msg">Do you want delete Item?</string>
     <string name="delete">Delete</string>
     <string name="cancel">Cancel</string>
-    <string name="name_of_item">Name of item</string>
-    <string name="price">Price</string>
+    <!--EditorActivity TextView's above EditText fields -->
+    <string name="name_of_item">Name of item:</string>
+    <string name="price">Price, $:</string>
     <string name="quantity">Quantity:</string>
     <string name="supplier_name">Supplier name:</string>
     <string name="supplier_phone">Supplier Phone:</string>
@@ -41,5 +44,25 @@
     <string name="item_saved">Item saved!</string>
     <string name="editing_failed">Item editing failed</string>
     <string name="items_was_updated">\ Items was updated</string>
+
+    <!-- Dialog message when user is leaving editor but hasn't saved changes [CHAR LIMIT=NONE] -->
+    <string name="unsaved_changes_dialog_msg">Discard your changes and quit editing?</string>
+    <!-- Dialog button text for the option to discard a user's changes [CHAR LIMIT=20] -->
+    <string name="discard">Discard</string>
+    <!-- Dialog button text for the option to keep editing the current pet [CHAR LIMIT=20] -->
+    <string name="keep_editing">Keep Editing</string>
+
+    <!--Dollar symbol-->
+    <string name="dollar">\u0024 %d </string>
+    <string name="empty_view_text">We have now Inventory here.</string>
+    <string name="version">verison 1.0</string>
+    <string name="credits">Created by Belousov Igor, 2018.</string>
+    <string name="icons_information">Application uses icons by freepik</string>
+    <string name="empty_subtitle">Let\'s start add new Item\'s</string>
+    <string name="decreased">Decreased</string>
+    <string name="quantity_zero">We don\'t have that Item more</string>
+    <string name="plus">+</string>
+    <string name="minus">-</string>
+    <string name="tel_uri_prefix">tel:</string>
 
 </resources>

@@ -3,14 +3,12 @@ package com.example.android.inventoryapp.data;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Intent;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.example.android.inventoryapp.R;
@@ -163,7 +161,6 @@ public class InventoryProvider extends ContentProvider {
         // return the new URI with the ID appended to the end of it
         if (id == -1) {
             Toast.makeText(getContext(), R.string.error_add_new, Toast.LENGTH_SHORT).show();
-            Log.e(LOG_TAG, "Failed to insert row for " + uri);
             return null;
         }
         //Notify all listeners that the data has changed for the item content URI

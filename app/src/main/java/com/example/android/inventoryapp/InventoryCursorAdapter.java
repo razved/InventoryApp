@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 
@@ -44,17 +45,29 @@ public class InventoryCursorAdapter extends CursorAdapter {
      *                correct row.
      */
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
-        ViewHolder holder;
+    public void bindView(View view, final Context context, final Cursor cursor) {
+        final ViewHolder holder;
         holder = new ViewHolder(view);
 
+        final int id = cursor.getInt(cursor.getColumnIndex(InventoryEntry._ID));
         String name = cursor.getString(cursor.getColumnIndex(InventoryEntry.COLUMN_INVENTORY_NAME));
         int price = cursor.getInt(cursor.getColumnIndex(InventoryEntry.COLUMN_INVENTORY_PRICE));
-        int quantity = cursor.getInt(cursor.getColumnIndex(InventoryEntry.COLUMN_INVENTORY_QUANTITY));
+        final int quantity = cursor.getInt(cursor.getColumnIndex(InventoryEntry.COLUMN_INVENTORY_QUANTITY));
 
         holder.inventoryName.setText(name);
-        holder.inventoryPrice.setText(String.valueOf(price));
+        holder.inventoryPrice.setText(context.getString(R.string.dollar, price));
         holder.inventoryQuantity.setText(String.valueOf(quantity));
+
+        holder.minusButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // I think it isn't a good idea to use Main Activity here
+                // but I don't know how it can work by other way
+                InventoryList inventoryList = (InventoryList) context;
+                inventoryList.decreaseQuantity(id, quantity);
+            }
+        });
+
     }
 
     /**
@@ -64,6 +77,7 @@ public class InventoryCursorAdapter extends CursorAdapter {
         @BindView(R.id.inventory_name_text_view_list) TextView inventoryName;
         @BindView(R.id.price_text_view_list) TextView inventoryPrice;
         @BindView(R.id.quantity_text_view_list) TextView inventoryQuantity;
+        @BindView(R.id.minus_button) ImageView minusButton;
 
         public ViewHolder(View view) {
             ButterKnife.bind(this, view);

@@ -9,7 +9,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -20,11 +19,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.inventoryapp.data.InventoryContract.InventoryEntry;
-import com.example.android.inventoryapp.data.InventoryDbHelper;
 
 import java.util.Random;
 
@@ -35,9 +32,7 @@ public class InventoryList extends AppCompatActivity implements LoaderManager.Lo
 
     final static private int MAX_DUMMY_PRICE = 300;
     final static private int MAX_DUMMY_QUANTITY = 300;
-    final static private String SORT_ORDER_ASC = " ASC";
-    final static private String SORT_ORDER_DESC = " DESC";
-    final static private String NEW_LINE = "\n";
+
     //Cursor Loader ID
     private static final int INVENTORY_LOADER = 0;
     //constant for log files
@@ -48,6 +43,7 @@ public class InventoryList extends AppCompatActivity implements LoaderManager.Lo
 
     @BindView(R.id.inventory_list_view) ListView inventoryListView;
     @BindView(R.id.fab) FloatingActionButton fab;
+    @BindView(R.id.empty_view) View emptyView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,8 +60,8 @@ public class InventoryList extends AppCompatActivity implements LoaderManager.Lo
             }
         });
 
-
-        // TODO: 04.07.2018 Забиндить Заглушку для пустого вью
+        //Set empty view for ListView
+        inventoryListView.setEmptyView(emptyView);
 
         //Setup an Adapter to create a list item for each row of inventory data
         //in the Cursor. There are no data until the loader finishes so pass in null for the Cursor.
@@ -113,6 +109,10 @@ public class InventoryList extends AppCompatActivity implements LoaderManager.Lo
             case R.id.action_delete_all_items:
                 showDeleteConfirmationDialog();
                 return true;
+            case R.id.action_copyright:
+                Intent intent = new Intent(this, AboutActivity.class);
+                startActivity(intent);
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -125,7 +125,6 @@ public class InventoryList extends AppCompatActivity implements LoaderManager.Lo
      * @param supplierName name of supplier
      * @param supplierPhone phone number of supplier
      */
-    // TODO: 04.07.2018 Переделать на ContentValues
     private void insertData(String name, int price,
                             int quantity,
                             String supplierName,
@@ -139,8 +138,7 @@ public class InventoryList extends AppCompatActivity implements LoaderManager.Lo
         values.put(InventoryEntry.COLUMN_INVENTORY_SUPPLIER_NAME, supplierName);
         values.put(InventoryEntry.COLUMN_INVENTORY_SUPPLIER_PHONE, supplierPhone);
 
-        Uri uri = getContentResolver().insert(InventoryEntry.CONTENT_URI, values);
-
+        getContentResolver().insert(InventoryEntry.CONTENT_URI, values);
      }
 
      private void showDeleteConfirmationDialog() {
@@ -179,7 +177,8 @@ public class InventoryList extends AppCompatActivity implements LoaderManager.Lo
 
         //Generate random Dummy-data
         String rndName = DummyData.nameStrings[random.nextInt(DummyData.nameStrings.length)];
-        int rndPrice = random.nextInt(MAX_DUMMY_PRICE);
+        //Add 1 to avoid 0$ price
+        int rndPrice = random.nextInt(MAX_DUMMY_PRICE) + 1;
         int rndQuantity = random.nextInt(MAX_DUMMY_QUANTITY);
         String rndSupplierName = DummyData
                 .supplierNameStrings[random.nextInt(DummyData.supplierNameStrings.length)];
@@ -193,7 +192,6 @@ public class InventoryList extends AppCompatActivity implements LoaderManager.Lo
      * This method retrieve all data from InventoryEntry.TABLE_NAME
      * @return all data from InventoryEntry.TABLE_NAME as Cursor
      */
-    // TODO: 04.07.2018 Переделать на ContentValues
     private Cursor queryData() {
         // Define a projection that specifies which columns from the database
         // you will actually use after this query.
@@ -236,6 +234,19 @@ public class InventoryList extends AppCompatActivity implements LoaderManager.Lo
         }
     }
 
+
+    public void decreaseQuantity(int id, int quantity) {
+        ContentValues values = new ContentValues();
+        Uri uri = ContentUris.withAppendedId(InventoryEntry.CONTENT_URI, id);
+        //if quantity more than 1 decrease quantity
+        if (quantity >= 1) {
+            values.put(InventoryEntry.COLUMN_INVENTORY_QUANTITY, quantity - 1);
+            int rowsUpdated = getContentResolver().update(uri, values, null, null);
+            showToast(getString(R.string.decreased));
+        } else {
+            showToast(getString(R.string.quantity_zero));
+        }
+    }
 
 
     /**
